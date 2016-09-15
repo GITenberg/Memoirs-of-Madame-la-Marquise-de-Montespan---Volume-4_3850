@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: O1AkwVpqOoASDU6Tm5oB7FrGHH0rdORmJqWJ7p3B9ZPidmCqlhyhaD6WqOx34Q34Z8d3g/iW1exKP1lX+bxqOBJTJmatbzPk0uOn+PNr6FJ3oRHa03WJZgks7lmZGdR2Zc1fh3nBi2x6d0VRSGFl3iAh9HgmdlpjXX445xPWP3LpUVZCaDuTWSacW53zmLNa6rEMxEvlFxg4Afqnti7I2WBAmE6acosRfPNdvgj2ThE/8XhkrqnyNZ2Ggw47ep3HP96G4BN47j49oXkezSIRCX0QmYnZvU28J7gvQQ+jFcv7bn4MxyIpXzL4qND2JhXfb1MwQPg0PgoffSRnD1ibMAby4Dj7BuZsLfeRv57mbtC2tmjK5xnN/UBoi+RlXAO1QWgeWV6MPw9rv77UC93O0tU2JseRX2OkSLDU7pSWzWph+1vj9lPLo2504NKDrb4ij8Ire4H4a1GwRyqbeToM9yUPtfQ+WQ0HcoRtlJN3Q7TxsjoEjKilHfXeP782a/v9ito5DDtMHpN+cscAIlITr1tlkz5e1173p3fTceHnPhm/BKkur1m2glaSYv95XAnwFUHlkeDTpnfOSgy3p/IqF54GMn48SJYi+LP38Aj4/hfs30HTxF6xpMezITb19jzClh/y7mMMUqma16GehJJMKmV0Uc3Nxru0zu8WWit0JlE=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Memoirs-of-Madame-la-Marquise-de-Montespan---Volume-4_3850
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
